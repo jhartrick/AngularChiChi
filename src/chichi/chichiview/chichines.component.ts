@@ -53,6 +53,8 @@ export class ChiChiComponent implements AfterViewInit {
         // }, 1);
     }
 
+    // TODO uhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
+    //       ill think about it
     // @HostListener('window:resize', ['$event'])
     // onResize(event?: any) {
     //     const ccElem = this.chichiHolder.nativeElement;

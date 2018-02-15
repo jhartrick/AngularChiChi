@@ -36,16 +36,9 @@ export class ChiChiCanvasComponent implements AfterViewInit {
     constructor(private zone: NgZone) {
     }
 
-   
-    private setupScene(): void {
-
-
+    ngAfterViewInit(): void {
         // create function to render nes video
         this.chichiDrawer = drawFrameCanvas(this.canvasRef.nativeElement.getContext('2d'));
-    }
-
-    ngAfterViewInit(): void {
-        this.setupScene();
     }
 
 }
