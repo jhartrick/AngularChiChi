@@ -1,0 +1,24 @@
+.popover{
+    display: inline-block;
+    width: 100%;
+}
+
+chichi-ui-segment {
+    position: relative;
+    float: left;
+    top: 0px;
+}
+
+.circlebutton {
+    min-width: 0;
+    background-color: #603591;
+    margin: 0px;
+    border-radius: 45%;
+    border: 0px;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    flex-shrink: 0;
+    color: white;
+}
+button:focus {outline:0;}
