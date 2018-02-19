@@ -121,6 +121,7 @@ export const defaultBindings: KeyBinding[] = [
     { key: 83, value: 8 }
 ]
 
+
 export function keyName(keyCode: number): string {
     let keyName = '';
     keyName = KEYS[keyCode.toString()];

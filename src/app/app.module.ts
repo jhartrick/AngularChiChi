@@ -1,7 +1,6 @@
 import { BrowserModule, DomSanitizer } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
-import { ChiChiModule } from '../chichi/chichi.module';
 import {MatButtonModule, MatCheckboxModule, MatIconRegistry} from '@angular/material';
 import { ToolStripComponent } from './toolstrip/toolstrip.component';
 import { ToolStripModule } from './toolstrip/toolstrip.module';
@@ -22,7 +21,6 @@ import { CheatingModule } from '../cartinfo/cheating/cheating.module';
     HttpClientModule,
     CartInfoModule,
     CheatingModule,
-    ChiChiModule
   ],
   providers: [MatIconRegistry, HttpClient, DialogService],
   bootstrap: [AppComponent]

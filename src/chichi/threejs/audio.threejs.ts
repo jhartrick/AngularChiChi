@@ -8,8 +8,7 @@ import { LocalAudioSettings } from './audio.localsettings';
 export interface ThreeJSAudioSettings extends LocalAudioSettings {
     items: any;
     listener: any;
-    mute: () => Promise<void>;
-    unmute: () => Promise<void>;
+
 }
 
 const nesAudioLength = 8192;
@@ -50,6 +49,10 @@ export const chichiPlayer = (listener: THREE.AudioListener) =>  {
 
             mute: audioCtx.suspend.bind(audioCtx) ,
             unmute: audioCtx.resume.bind(audioCtx),
+            stop: () => {
+                audioSource.loop = false;
+                audioSource.stop();
+            },
 
             listener: listener,
 

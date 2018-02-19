@@ -1,11 +1,20 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import {  loadCartFromUrl, loadCartFromFile } from '../chichi/wishbone/filehandler';
-import { BaseCart, WavSharer } from 'chichi';
-import { createWishboneFromCart, WishboneRuntime } from '../chichi/wishbone/wishbone';
-import { setupIO } from '../chichi/chichi.io';
-import { chichiPlayer, ThreeJSAudioSettings } from '../chichi/threejs/audio.threejs';
+import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
+
+import { loadCartFromFile } from '../chichi/wishbone/filehandler';
+
+import { BaseCart  } from 'chichi';
+
 import * as THREE from 'three';
 import { DialogService } from './dialog.service';
+import { createWishboneFromCart, Wishbone,  WishboneIO } from '../chichi/wishbone/wishbone';
+
+
+import { WishboneVideo } from '../chichi/wishbone/video';
+import { WishboneAudio } from '../chichi/wishbone/audio';
+import { WishboneControlPads } from '../chichi/wishbone/controlpads';
+
+import { LocalAudioSettings } from '../chichi/threejs/audio.localsettings';
+import { WishboneRuntime, createWishboneRuntime } from '../chichi/wishbone/runtime';
 
 
 @Component({
@@ -17,30 +26,35 @@ import { DialogService } from './dialog.service';
         '(document:keyup)': 'onkeyup($event)'
     }
 })
-export class AppComponent {
-  audio: ThreeJSAudioSettings;
-  chichiPlayer: (wavForms: WavSharer) => ThreeJSAudioSettings;
-  
-  runtime: WishboneRuntime;
-  wishbone: any;
-  paused: boolean = false;
+export class AppComponent implements OnInit {
+
+  builders: ((wishbone?: Wishbone) => (io: WishboneIO) => Readonly<WishboneIO>)[];
+  title = 'ChiChiNg';
+
+  @ViewChild('chichiCanvas') chichiCanvas;
+
   cart: BaseCart;
-  title = 'app';
-  url='assets/metroid.nes';
+  audio: LocalAudioSettings;
+  runtime: WishboneRuntime;
+
+  paused: boolean = false;
   muted = false;
 
   constructor(private dialogService: DialogService) {
-    const listener = new THREE.AudioListener();
-    // create function to play nes audio
-    this.chichiPlayer  = chichiPlayer(listener);
 
   }
+
+  ngOnInit(): void {
+    this.builders = [
+      WishboneControlPads.setupKeyboards(this),
+      WishboneAudio.setupAudioThreeJS(),
+      WishboneVideo.setupVideoCanvas({ canvas: this.chichiCanvas.nativeElement })
+    ];
+
+  }
+
   mute (value: boolean) {
-    if (value) {
-      this.audio.mute();
-    } else {
-      this.audio.unmute();
-    }
+    value ?  this.audio.mute() : this.audio.unmute();
   }
 
   pause(value: boolean) {
@@ -48,45 +62,49 @@ export class AppComponent {
         this.runtime.pause(value);
     }
   }
-  onkeydown(event) {
-  }
+  
+  onkeydown(event) { }
 
-  onkeyup(event) {
-  }
-
-
-  load() {
-    loadCartFromUrl(this.url).then(cart => this.cart = cart);
-  }
+  onkeyup(event) { } 
 
   loadfile(e: Event) {
+    // loadCartFromUrl(this.url).then(cart => this.cart = cart);
+    this.audio ? this.audio.stop() : ()=>{};
     (async ()=> {
       const cart = await loadCartFromFile((<HTMLInputElement>e.target).files[0]);
-      await this.runCart(cart);
       this.cart = cart;
+      await this.runCart(cart);
     })();
   }
 
   private runCart(value: BaseCart) {
 
-        return (async()=>{
-          if (this.runtime) {
-            await this.runtime.teardown();
-          }
-          const wishbone = createWishboneFromCart(value);
-          this.audio = this.chichiPlayer(wishbone.wavSharer);
-          wishbone.io = {
-              keydown: (val: (e: any) => void) => this.onkeydown = val,
-              keyup: (val: (e: any) => void) => this.onkeyup = val,
-              drawFrame: undefined
-          };
-          const runchi = setupIO(wishbone.io);
-          this.wishbone = wishbone;
-          wishbone.cart = value;
-          this.runtime = runchi(wishbone);
+      return (async () => {
+        if (this.runtime) {
+          this.runtime = undefined
+        }
 
-          this.runtime.setFrameTime(1000/60);
-        })();
-    }
+        const wishbone = createWishboneFromCart(value);
 
+        const setupRuntime = createWishboneRuntime(wishbone);
+
+        const wbBuilders = this.builders.map(b => b(wishbone));
+
+        const runchi = () => {
+          // build IO object
+          let wbio = undefined;
+          wbBuilders.forEach(builder => {
+            wbio = builder(wbio)
+          });
+          // set up audio hooks
+          this.audio = wbio.audio();
+          return setupRuntime(wbio);
+        }
+
+        wishbone.cart = value;
+
+        this.runtime = runchi();
+      })();
+  }
 }
+

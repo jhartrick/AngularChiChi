@@ -1,14 +1,20 @@
 import { ChiChiMachine, BaseCart, WavSharer, ChiChiInputHandler, PixelBuffer, ChiChiPPU } from "chichi";
-import { ChiChiIO } from "../chichi.io";
 import { WishBoneControlPad } from "./keyboard/wishbone.controlpad";
 import { ChiChiCPPU } from "chichi";
+import { WishboneRuntime } from "./runtime";
+import { LocalAudioSettings } from "../threejs/audio.localsettings";
 
 
-export interface WishboneRuntime {
-    teardown: () => Promise<void>; 
-    pause: (val: boolean) => void; 
-    setFrameTime: (n: number) => void; 
-    wishbone: Wishbone;
+
+// this interface is used for the emulator to poll/push data to the outside world
+export interface WishboneIO {
+    // polls current state of controller ports
+    padOneState: () => number;
+    padTwoState: () => number;
+
+    // when called, should draw the current frame
+    drawFrame:  () => void;
+    audio: (settings?: LocalAudioSettings) => LocalAudioSettings
 }
 
 export interface Wishbone
@@ -17,7 +23,6 @@ export interface Wishbone
     padOne: ChiChiInputHandler;
     padTwo: ChiChiInputHandler;
 
-    io: ChiChiIO;
     chichi?: ChiChiMachine;
     cart?: BaseCart;
     runtime?: WishboneRuntime;
@@ -25,15 +30,16 @@ export interface Wishbone
     poweron: () => void;
     poweroff: () => void;
     reset: () => void;
-    runframe: () => void;
-    setpads: () => void;
 
+    runframe: () => void;
+
+    // TODO: implement this better
     getPixelBuffer: ()=> PixelBuffer;
     setPixelBuffer: (buffer: any) => void;
 
 }
 
-const createWishboneLoader = (cart: BaseCart) => {
+export const createWishboneFromCart = (cart: BaseCart) => {
     const chichi = new ChiChiMachine();
 
     const setPixelBuffer = (ppu: ChiChiPPU) => (buffer: any) => {
@@ -53,70 +59,9 @@ const createWishboneLoader = (cart: BaseCart) => {
         poweroff:  chichi.PowerOff.bind(chichi),
         reset:  chichi.Reset.bind(chichi),
         runframe:  chichi.RunFrame.bind(chichi),
-        setpads: () => undefined,
-        io: undefined
     }
     chichi.loadCart(cart);
     chichi.PowerOn();
     return result;
 }
 
-const updatePadState = (dest: any, src: any) => () => dest.padOneState = src.padOneState;
-
-export const createWishboneFromCart = (cart: BaseCart) => {
-    const wishbone = createWishboneLoader(cart);
-    wishbone.cart = cart;
-    wishbone.poweron();
-    return wishbone;
-};
-
-// returns options for running emulator
-export const runAChichi = (wishbone: Wishbone, io: ChiChiIO, padOne: WishBoneControlPad): WishboneRuntime => {
-
-
-    wishbone.setpads = updatePadState(wishbone.padOne.ControlPad, padOne);
-    let paused = false;
-    let frameTime = 1000.0/60;
-    const run = () => {        
-        wishbone.setpads();
-        wishbone.runframe();
-        io.drawFrame();
-    }
-    let interval;
-
-    const runInterval = () => {
-        interval = setInterval(p => {
-            if (!paused) { 
-                run(); 
-            }
-        }, frameTime);
-    };
-    runInterval();
-
-    const teardown =  (): Promise<void> => {
-        clearInterval(interval);
-        return (async function() {
-            setTimeout(()=> {
-                wishbone.setpads = null,
-                wishbone.wavSharer = null,
-                wishbone.poweroff();
-            }, 60);
-        }())
-    }
-
-    const pause = (val: boolean) => { 
-        paused = val;
-        if (paused) {
-            wishbone.wavSharer.SharedBuffer.fill(0)
-        }
-    }
-
-    const setFrameTime = (time: number) => {
-        
-        clearInterval(interval);
-        frameTime = time;
-        runInterval();
-    }
-    wishbone.runtime = { teardown, pause, wishbone, setFrameTime };
-    return { teardown, pause, wishbone, setFrameTime };
-}
