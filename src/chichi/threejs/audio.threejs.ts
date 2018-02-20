@@ -42,11 +42,12 @@ export const chichiPlayer = (listener: THREE.AudioListener) =>  {
     scriptNode.onaudioprocess = () => {};
 
     return function (wavForms: WavSharer) {
-        scriptNode.onaudioprocess = streamChiChiAudio(wavForms);
+        scriptNode.onaudioprocess = (audioProcessingEvent:AudioProcessingEvent) => {
+            streamChiChiAudio(wavForms, audioProcessingEvent);
+        }
 
-        const result: ThreeJSAudioSettings = {
+        const result: LocalAudioSettings = {
             sampleRate: audioCtx.sampleRate,
-
             mute: audioCtx.suspend.bind(audioCtx) ,
             unmute: audioCtx.resume.bind(audioCtx),
             stop: () => {
@@ -58,16 +59,8 @@ export const chichiPlayer = (listener: THREE.AudioListener) =>  {
                 gainNode.disconnect();
                 audioSource.disconnect();
                 console.log('audio disconnect')
-            },
+            }
 
-            listener: listener,
-
-            items: {
-                sound: sound,
-                source: audioSource,
-                scriptNode: scriptNode,
-                gainNode: gainNode
-            },
         };
 
         return result;
@@ -75,7 +68,7 @@ export const chichiPlayer = (listener: THREE.AudioListener) =>  {
 }
 
 // called by a scriptProcessorNode periodically, should fill outputBuffer with audio 
-const streamChiChiAudio = (wavForms: WavSharer) => (audioProcessingEvent: AudioProcessingEvent) => {
+const streamChiChiAudio = (wavForms: WavSharer, audioProcessingEvent: AudioProcessingEvent) => {
     const nesAudio = wavForms.SharedBuffer;
 
     const obuf = audioProcessingEvent.outputBuffer;

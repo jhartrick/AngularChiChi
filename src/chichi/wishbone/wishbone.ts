@@ -14,7 +14,7 @@ export interface WishboneIO {
 
     // when called, should draw the current frame
     drawFrame:  () => void;
-    audio: (settings?: LocalAudioSettings) => LocalAudioSettings
+    audio: LocalAudioSettings
 }
 
 export interface Wishbone
@@ -39,17 +39,15 @@ export interface Wishbone
 
 }
 
-export const createWishboneFromCart = (cart: BaseCart) => {
+export const createWishboneFromCart = () => {
     const chichi = new ChiChiMachine();
 
     const setPixelBuffer = (ppu: ChiChiPPU) => (buffer: any) => {
         ppu.pixelBuffer = buffer;
     }
     const getPixelBuffer = (ppu: ChiChiPPU) => (): PixelBuffer => ppu.pixelBuffer;
-
     const result: Wishbone = {
         chichi: chichi,
-        cart: cart,
         wavSharer: chichi.SoundBopper.writer,
         getPixelBuffer: getPixelBuffer(chichi.Cpu.ppu),
         setPixelBuffer: setPixelBuffer(chichi.Cpu.ppu),
@@ -60,8 +58,13 @@ export const createWishboneFromCart = (cart: BaseCart) => {
         reset:  chichi.Reset.bind(chichi),
         runframe:  chichi.RunFrame.bind(chichi),
     }
-    chichi.loadCart(cart);
-    chichi.PowerOn();
-    return result;
+    return (cart: BaseCart) => {
+        chichi.PowerOff();
+        chichi.loadCart(cart);
+        chichi.PowerOn();
+        return result;
+    
+    }
+
 }
 

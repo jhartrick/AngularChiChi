@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
   paused: boolean = false;
   muted = false;
 
-  constructor(private zone: NgZone) {
+  constructor(public zone: NgZone, public dialogService: DialogService) {
 
   }
 
@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
     this.chichiIO = updateIO([
       WishboneControlPads.setupKeyboards(this),
       WishboneAudio.setupAudioThreeJS(),
-      WishboneVideo.setupVideoCanvas({ canvas: this.chichiCanvas.nativeElement })
+      WishboneVideo.setupVideoThreeJS({ canvas: this.chichiCanvas.nativeElement })
     ])(undefined);
   }
 
@@ -80,19 +80,15 @@ export class AppComponent implements OnInit {
 
       return (async () => {
         if (this.runtime) {
-          this.audio ? this.audio.stop() : ()=>{};
           await this.runtime.teardown();
         }
 
-        const wishbone = createWishboneFromCart(value);
+        const wishbone = loadWishbone(value);
 
         const setupRuntime = createWishboneRuntime(wishbone);
 
-          // build IO object
-        wishbone.cart = value;
-
         const wbio = this.chichiIO(wishbone);
-        this.audio = wbio.audio();
+        this.audio = wbio.audio;
         this.zone.runOutsideAngular(()=> {
           this.runtime = setupRuntime(wbio);
         });
@@ -100,7 +96,9 @@ export class AppComponent implements OnInit {
   }
 }
 
-const updateIO = (updaters: Array<(wishbone:Wishbone) => (io: WishboneIO) => WishboneIO>) =>   (wbio: WishboneIO) => (wishbone: Wishbone) =>  {
+const loadWishbone = createWishboneFromCart();
+
+const updateIO = (updaters: Array<(wishbone:Wishbone) => (io: WishboneIO) => WishboneIO>) => (wbio: WishboneIO) => (wishbone: Wishbone) =>  {
   const ioBuilders = updaters.map(fact => fact(wishbone));
   ioBuilders.forEach(builder => {
       wbio = builder(wbio)

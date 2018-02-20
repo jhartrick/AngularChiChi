@@ -9,9 +9,12 @@ const setupAudioThreeJS = () => (wishbone: Wishbone) => {
     
     // return a function to attach a renderer to ChiChIO
     return (io: WishboneIO) => {
-      const result = Object.assign({}, io);
-      result.audio = () => player(wishbone.wavSharer);
-      return Object.freeze(result);
+        if (io.audio !== undefined) {
+            io.audio.stop();
+        };
+        const result = Object.assign({}, io);
+        result.audio = player(wishbone.wavSharer);
+        return Object.freeze(result);
     }
 };
 

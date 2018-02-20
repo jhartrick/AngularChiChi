@@ -8,7 +8,7 @@ export interface VideoHandlingComponent {
     canvas: HTMLCanvasElement;
 }
 
-const setupVideoThreeJS = (opts: VideoHandlingComponent, wishbone: Wishbone) => {
+const setupVideoThreeJS = (opts: VideoHandlingComponent) => (wishbone: Wishbone) => {
     // higher order function sets up rendering
     const renderer = new THREE.WebGLRenderer(opts);
     renderer.setPixelRatio(Math.floor(window.devicePixelRatio));
@@ -34,7 +34,6 @@ const setupVideoCanvas = (opts: VideoHandlingComponent) => (wishbone: Wishbone) 
     // return a function to attach a renderer to ChiChIO
     return (io: WishboneIO) => {
         wishbone.setPixelBuffer(PixelBuffers.createDecodedPixelBuffer()((new ArrayBuffer(256 * 256 * 4))));            
-
         const result = Object.assign({}, io);
         result.drawFrame = chichiDrawer(wishbone);
         return Object.freeze(result);
