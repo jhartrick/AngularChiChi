@@ -14,7 +14,6 @@ interface runLoop  {
 import { Wishbone, WishboneIO } from "./wishbone";
 
 const runFrame = (wishbone: Wishbone) => (io: WishboneIO)  => () => {
-    wishbone.padOne.ControlPad.padOneState = io.padOneState();
     wishbone.runframe();
     io.drawFrame();
 }

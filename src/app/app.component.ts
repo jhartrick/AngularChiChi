@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
   cart: BaseCart;
   audio: LocalAudioSettings;
   runtime: WishboneRuntime;
+  wishbone: Wishbone;
 
   paused: boolean = false;
   muted = false;
@@ -88,6 +89,8 @@ export class AppComponent implements OnInit {
         const setupRuntime = createWishboneRuntime(wishbone);
 
         const wbio = this.chichiIO(wishbone);
+
+        this.wishbone = wishbone;
         this.audio = wbio.audio;
         this.zone.runOutsideAngular(()=> {
           this.runtime = setupRuntime(wbio);

@@ -13,15 +13,15 @@ const setupKeyboards = (comp: KeyboardHandlingComponent) => (wishbone?: Wishbone
     const padOne: Pads.WishBoneControlPad = Pads.createControlPad(defaultBindings)('one');
     // TODO: setup some default player two bindings
     // const padTwo: Pads.WishBoneControlPad = Pads.createControlPad(defaultBindings)('two');
-
+    wishbone.padOne.ControlPad
     comp.onkeydown = (event) => Pads.handleKeyDownEvent(padOne, event);
     comp.onkeyup = (event) => Pads.handleKeyUpEvent(padOne, event);
+    wishbone.padOne.ControlPad.getPadState = () => padOne.padOneState;
 
     // Then returns a function which can attach polling functions to a ChiChiIO object
     return (io: WishboneIO) => {
         const newIo = Object.assign({}, io);
-        newIo.padOneState = () => padOne.padOneState;
-        newIo.padTwoState = () => 0;
+
         return Object.freeze(newIo);
     }
 };
