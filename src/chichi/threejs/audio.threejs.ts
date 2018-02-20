@@ -50,8 +50,14 @@ export const chichiPlayer = (listener: THREE.AudioListener) =>  {
             mute: audioCtx.suspend.bind(audioCtx) ,
             unmute: audioCtx.resume.bind(audioCtx),
             stop: () => {
+                gainNode.gain.value = 0;
+                scriptNode.onaudioprocess = undefined;
                 audioSource.loop = false;
                 audioSource.stop();
+                scriptNode.disconnect();
+                gainNode.disconnect();
+                audioSource.disconnect();
+                console.log('audio disconnect')
             },
 
             listener: listener,

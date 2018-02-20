@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, OnInit, NgZone } from '@angular/core';
 
 import { loadCartFromFile } from '../chichi/wishbone/filehandler';
 
@@ -28,7 +28,7 @@ import { WishboneRuntime, createWishboneRuntime } from '../chichi/wishbone/runti
 })
 export class AppComponent implements OnInit {
 
-  builders: ((wishbone?: Wishbone) => (io: WishboneIO) => Readonly<WishboneIO>)[];
+  chichiIO: (wishbone: Wishbone) => WishboneIO;
   title = 'ChiChiNg';
 
   @ViewChild('chichiCanvas') chichiCanvas;
@@ -40,17 +40,16 @@ export class AppComponent implements OnInit {
   paused: boolean = false;
   muted = false;
 
-  constructor(private dialogService: DialogService) {
+  constructor(private zone: NgZone) {
 
   }
 
   ngOnInit(): void {
-    this.builders = [
+    this.chichiIO = updateIO([
       WishboneControlPads.setupKeyboards(this),
       WishboneAudio.setupAudioThreeJS(),
       WishboneVideo.setupVideoCanvas({ canvas: this.chichiCanvas.nativeElement })
-    ];
-
+    ])(undefined);
   }
 
   mute (value: boolean) {
@@ -69,7 +68,7 @@ export class AppComponent implements OnInit {
 
   loadfile(e: Event) {
     // loadCartFromUrl(this.url).then(cart => this.cart = cart);
-    this.audio ? this.audio.stop() : ()=>{};
+    
     (async ()=> {
       const cart = await loadCartFromFile((<HTMLInputElement>e.target).files[0]);
       this.cart = cart;
@@ -81,30 +80,30 @@ export class AppComponent implements OnInit {
 
       return (async () => {
         if (this.runtime) {
-          this.runtime = undefined
+          this.audio ? this.audio.stop() : ()=>{};
+          await this.runtime.teardown();
         }
 
         const wishbone = createWishboneFromCart(value);
 
         const setupRuntime = createWishboneRuntime(wishbone);
 
-        const wbBuilders = this.builders.map(b => b(wishbone));
-
-        const runchi = () => {
           // build IO object
-          let wbio = undefined;
-          wbBuilders.forEach(builder => {
-            wbio = builder(wbio)
-          });
-          // set up audio hooks
-          this.audio = wbio.audio();
-          return setupRuntime(wbio);
-        }
-
         wishbone.cart = value;
 
-        this.runtime = runchi();
+        const wbio = this.chichiIO(wishbone);
+        this.audio = wbio.audio();
+        this.zone.runOutsideAngular(()=> {
+          this.runtime = setupRuntime(wbio);
+        });
       })();
   }
 }
 
+const updateIO = (updaters: Array<(wishbone:Wishbone) => (io: WishboneIO) => WishboneIO>) =>   (wbio: WishboneIO) => (wishbone: Wishbone) =>  {
+  const ioBuilders = updaters.map(fact => fact(wishbone));
+  ioBuilders.forEach(builder => {
+      wbio = builder(wbio)
+  });
+  return wbio;
+}
