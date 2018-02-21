@@ -12,10 +12,13 @@ const setupKeyboards = (comp: KeyboardHandlingComponent) => (wishbone?: Wishbone
     // higher order function creates keyboard event handlers and binds them to angular component
     const padOne: Pads.WishBoneControlPad = Pads.createControlPad(defaultBindings)('one');
     // TODO: setup some default player two bindings
-    // const padTwo: Pads.WishBoneControlPad = Pads.createControlPad(defaultBindings)('two');
-    wishbone.padOne.ControlPad
+
+    // bind keyboard handlers to controlpad encoder
     comp.onkeydown = (event) => Pads.handleKeyDownEvent(padOne, event);
     comp.onkeyup = (event) => Pads.handleKeyUpEvent(padOne, event);
+
+    // inject new getPadState function into chichi
+    // TODO:  this is too deep of a grab, controlpad and inputhandler need to merge
     wishbone.padOne.ControlPad.getPadState = () => padOne.padOneState;
 
     // Then returns a function which can attach polling functions to a ChiChiIO object
