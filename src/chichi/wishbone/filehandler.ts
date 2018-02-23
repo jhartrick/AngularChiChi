@@ -6,7 +6,7 @@ import * as crc from 'crc';
 
 const loadFile = (filedata: File) => {
     const reader: FileReader = new FileReader();
-    const promise = new Promise<BaseCart>((resolve, reject)=>{ 
+    const promise = new Promise<BaseCart>((resolve, reject) => {
         reader.onload = (ze) => {
             const ab = reader.result;
             resolve(iNESFileHandler(ab));
@@ -14,7 +14,7 @@ const loadFile = (filedata: File) => {
     });
     reader.readAsArrayBuffer(filedata);
     return promise;
-} 
+};
 
 const loadNesFile = async (filedata: File, name: string) => {
     const reader: FileReader = new FileReader();
@@ -24,7 +24,7 @@ const loadNesFile = async (filedata: File, name: string) => {
 const blobToFile = (theBlob: Blob, fileName: string): File => {
     Object.assign(theBlob, { lastModifiedDate: new Date, name: fileName });
     return <File>theBlob;
-}
+};
 
 const loadZipFile = async (file: File) => {
     const fileReader: FileReader = new FileReader();

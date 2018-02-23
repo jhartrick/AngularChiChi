@@ -1,7 +1,7 @@
 import * as Pads from '../wishbone/keyboard/wishbone.controlpad';
 import { defaultBindings } from '../wishbone/keyboard/wishbone.keybindings';
 import { WishboneIO, Wishbone } from './wishbone';
-import { createControlPad } from 'chichi';
+
 
 export interface KeyboardHandlingComponent {
     onkeydown(event: any): void;

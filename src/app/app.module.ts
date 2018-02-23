@@ -8,6 +8,20 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { CartInfoModule } from '../cartinfo/cartinfo.module';
 import { DialogService } from './dialog.service';
 import { CheatingModule } from '../cartinfo/cheating/cheating.module';
+import { ActivatedRoute, Routes, RouterModule } from '@angular/router';
+
+const appRoutes: Routes = [
+  { path: '/', component: AppComponent },
+  {
+    path: '/',
+    component: AppComponent,
+    data: { title: 'ChiChiNg' }
+  },
+  { path: '**',
+    redirectTo: '/',
+    pathMatch: 'full'
+  }
+];
 
 @NgModule({
   declarations: [
@@ -20,6 +34,7 @@ import { CheatingModule } from '../cartinfo/cheating/cheating.module';
     HttpClientModule,
     CartInfoModule,
     CheatingModule,
+    RouterModule.forRoot(appRoutes)
   ],
   providers: [MatIconRegistry, HttpClient, DialogService],
   bootstrap: [AppComponent]
