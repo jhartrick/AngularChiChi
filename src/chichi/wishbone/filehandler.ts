@@ -21,7 +21,7 @@ const loadNesFile = async (filedata: File, name: string) => {
     return await loadFile(filedata);
 };
 
-const blobToFile = (theBlob: Blob, fileName:string): File => {
+const blobToFile = (theBlob: Blob, fileName: string): File => {
     Object.assign(theBlob, { lastModifiedDate: new Date, name: fileName });
     return <File>theBlob;
 }
@@ -29,9 +29,9 @@ const blobToFile = (theBlob: Blob, fileName:string): File => {
 const loadZipFile = async (file: File) => {
     const fileReader: FileReader = new FileReader();
     const name = file.name;
-    return new Promise<BaseCart>((r,x) => { 
+    return new Promise<BaseCart>((r, x) => {
         fileReader.onload = (e) => {
-            (async ()=>{
+            (async () => {
                 const rom: number[] = Array.from(new Uint8Array(fileReader.result));
                 // zip file
                 const zip = await JSZip.loadAsync(rom);
@@ -41,16 +41,16 @@ const loadZipFile = async (file: File) => {
                     const blob = await zipEntry.async('blob');
                     r(await loadFile(blobToFile(blob, zipEntry.name)));
                 } else {
-                    x('no nes file found in zip.')
+                    x('no nes file found in zip.');
                 }
             })();
-        }
+        };
         fileReader.readAsArrayBuffer(file);
-    })
+    });
 };
 
 export const loadCartFromFile = async (file: File) => {
-    let cart: BaseCart = undefined;
+    let cart: BaseCart;
     return (async () => {
         try {
             if (file.name.endsWith('.zip')) {
@@ -61,14 +61,14 @@ export const loadCartFromFile = async (file: File) => {
                throw new Error(`invalid file type ${file.name}`);
            }
         } catch (e) {
-            console.log(e);
+            throw e;
         }
         cart.fileName = file.name;
         return cart;
     })();
-}
+};
 
-export const loadCartFromUrl = async (url: string)=> {
+export const loadCartFromUrl = async (url: string) => {
     return (async () => {
         const response = await fetch(url);
         return loadFile(blobToFile(await response.blob(), url));

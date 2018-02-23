@@ -1,7 +1,7 @@
 import { BrowserModule, DomSanitizer } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
-import {MatButtonModule, MatCheckboxModule, MatIconRegistry} from '@angular/material';
+import { MatButtonModule, MatCheckboxModule, MatIconRegistry } from '@angular/material';
 import { ToolStripComponent } from './toolstrip/toolstrip.component';
 import { ToolStripModule } from './toolstrip/toolstrip.module';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -12,7 +12,6 @@ import { CheatingModule } from '../cartinfo/cheating/cheating.module';
 @NgModule({
   declarations: [
     AppComponent,
-    
   ],
   imports: [
     BrowserModule,
