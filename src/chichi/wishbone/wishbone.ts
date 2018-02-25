@@ -38,15 +38,14 @@ export interface Wishbone {
 
 }
 
-export const createWishboneFromCart = () => {
-    const chichi = new ChiChiMachine();
-
+const createWishbone = (): Wishbone => {
+    const chichi: ChiChiMachine = new ChiChiMachine()
     const setPixelBuffer = (ppu: ChiChiPPU) => (buffer: any) => {
         ppu.pixelBuffer = buffer;
     }
     
     const getPixelBuffer = (ppu: ChiChiPPU) => (): PixelBuffer => ppu.pixelBuffer;
-    const result: Wishbone = {
+    return {
         chichi: chichi,
         wavSharer: chichi.SoundBopper.writer,
         getPixelBuffer: getPixelBuffer(chichi.Cpu.ppu),
@@ -58,12 +57,16 @@ export const createWishboneFromCart = () => {
         reset:  chichi.Reset.bind(chichi),
         runframe:  chichi.RunFrame.bind(chichi),
     };
+}
+
+export const createWishboneFromCart = () => {
+    const wishbone = createWishbone();
 
     return (cart: BaseCart) => {
-        chichi.PowerOff();
-        chichi.loadCart(cart);
-        chichi.PowerOn();
-        return result;
+        if (cart) {
+            wishbone.chichi.loadCart(cart);
+        }
+        return wishbone;
     };
 
 }

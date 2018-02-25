@@ -11,14 +11,13 @@ import { CheatingModule } from '../cartinfo/cheating/cheating.module';
 import { ActivatedRoute, Routes, RouterModule } from '@angular/router';
 
 const appRoutes: Routes = [
-  { path: '/', component: AppComponent },
   {
-    path: '/',
+    path: '',
     component: AppComponent,
     data: { title: 'ChiChiNg' }
   },
   { path: '**',
-    redirectTo: '/',
+    redirectTo: '/chichi',
     pathMatch: 'full'
   }
 ];

@@ -95,7 +95,7 @@ export class AppComponent implements OnInit {
       }
 
       const wishbone = loadWishbone(value);
-
+      wishbone.poweron();
       const setupRuntime = createWishboneRuntime(wishbone);
 
       const wbio = this.chichiIO(wishbone);
