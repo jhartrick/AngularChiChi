@@ -36,7 +36,7 @@ const silence = (wb: Wishbone) => {
     wb.wavSharer.SharedBuffer.fill(0)
 }
 
-// returns options for running emulator
+// returns runtime modifiers for running emulator
 export const createWishboneRuntime = (wishbone: Wishbone) => (io: WishboneIO): WishboneRuntime => {
 
     let paused = false;

@@ -1,10 +1,9 @@
-import { ChiChiMachine, BaseCart, WavSharer, ChiChiControlPad, PixelBuffer, ChiChiPPU } from 'chichi';
+import { ChiChiMachine, BaseCart, WavSharer, ChiChiControlPad, PixelBuffer, ChiChiPPU, StateBuffer } from 'chichi';
 import { WishBoneControlPad } from './keyboard/wishbone.controlpad';
 import { ChiChiCPPU } from 'chichi';
 import { WishboneRuntime } from './runtime';
 import { LocalAudioSettings } from '../threejs/audio.localsettings';
-
-
+import { WishboneState } from './state';
 
 // this interface is used for the emulator to poll/push data to the outside world
 export interface WishboneIO {
@@ -36,15 +35,15 @@ export interface Wishbone {
     getPixelBuffer: () => PixelBuffer;
     setPixelBuffer: (buffer: any) => void;
 
+    state: WishboneState;
+
 }
 
 const createWishbone = (): Wishbone => {
     const chichi: ChiChiMachine = new ChiChiMachine()
-    const setPixelBuffer = (ppu: ChiChiPPU) => (buffer: any) => {
-        ppu.pixelBuffer = buffer;
-    }
-    
+    const setPixelBuffer = (ppu: ChiChiPPU) => (buffer: any) => ppu.pixelBuffer = buffer;
     const getPixelBuffer = (ppu: ChiChiPPU) => (): PixelBuffer => ppu.pixelBuffer;
+
     return {
         chichi: chichi,
         wavSharer: chichi.SoundBopper.writer,
@@ -56,10 +55,14 @@ const createWishbone = (): Wishbone => {
         poweroff:  chichi.PowerOff.bind(chichi),
         reset:  chichi.Reset.bind(chichi),
         runframe:  chichi.RunFrame.bind(chichi),
+        state: {
+            pull: null,
+            push: null,
+        }
     };
 }
 
-export const createWishboneFromCart = () => {
+export const createWishboneFactory = () => {
     const wishbone = createWishbone();
 
     return (cart: BaseCart) => {

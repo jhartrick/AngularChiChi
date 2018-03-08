@@ -23,6 +23,9 @@ module.exports = function (config) {
     angularCli: {
       environment: 'dev'
     },
+    files: [
+      { pattern: 'testfiles/*.nes', watched: false, included: false, served: true, nocache: false},
+    ],
     reporters: ['progress', 'kjhtml'],
     port: 9876,
     colors: true,

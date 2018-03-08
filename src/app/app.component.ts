@@ -6,7 +6,7 @@ import { BaseCart } from 'chichi';
 
 import * as THREE from 'three';
 import { DialogService } from './dialog.service';
-import { createWishboneFromCart, Wishbone, WishboneIO } from '../chichi/wishbone/wishbone';
+import { createWishboneFactory, Wishbone, WishboneIO } from '../chichi/wishbone/wishbone';
 
 
 import { WishboneVideo } from '../chichi/wishbone/video';
@@ -31,7 +31,7 @@ import 'rxjs/add/operator/filter';
 })
 export class AppComponent implements OnInit {
 
-  chichiIO: (wishbone: Wishbone) => WishboneIO;
+  setupIO: (wishbone: Wishbone) => WishboneIO;
   title = 'ChiChiNg';
 
   @ViewChild('chichiCanvas') chichiCanvas;
@@ -44,21 +44,27 @@ export class AppComponent implements OnInit {
   paused = false;
   muted = false;
 
-  constructor(public zone: NgZone, public dialogService: DialogService, private route: ActivatedRoute) {
+  constructor(
+    public zone: NgZone,
+    public dialogService: DialogService,
+    public route: ActivatedRoute) {
 
   }
 
   ngOnInit(): void {
-    this.chichiIO = updateIO([
+    this.setupIO = updateIO([
       WishboneControlPads.setupKeyboards(this),
       WishboneAudio.setupAudioThreeJS(),
       WishboneVideo.setupVideoThreeJS({ canvas: this.chichiCanvas.nativeElement })
     ])(undefined);
+
     this.route.queryParams.filter(param => param.url).subscribe(p => {
       (async () => {
         const cart = await loadCartFromUrl('https://cors-anywhere.herokuapp.com/' + p.url);
-        this.cart = cart;
-        await this.runCart(cart);
+        if (cart) {
+          this.cart = cart;
+          await this.runCart(cart);
+        }
       })();
     });
   }
@@ -78,8 +84,6 @@ export class AppComponent implements OnInit {
   onkeyup(event) { }
 
   loadfile(e: Event) {
-    // loadCartFromUrl(this.url).then(cart => this.cart = cart);
-
     (async () => {
       const cart = await loadCartFromFile((<HTMLInputElement>e.target).files[0]);
       this.cart = cart;
@@ -98,7 +102,7 @@ export class AppComponent implements OnInit {
       wishbone.poweron();
       const setupRuntime = createWishboneRuntime(wishbone);
 
-      const wbio = this.chichiIO(wishbone);
+      const wbio = this.setupIO(wishbone);
 
       this.wishbone = wishbone;
       this.audio = wbio.audio;
@@ -109,7 +113,7 @@ export class AppComponent implements OnInit {
   }
 }
 
-const loadWishbone = createWishboneFromCart();
+const loadWishbone = createWishboneFactory();
 
 // tslint:disable-next-line:max-line-length
 const updateIO = (updaters: Array<(wishbone: Wishbone) => (io: WishboneIO) => WishboneIO>) => (wbio: WishboneIO) => (wishbone: Wishbone) => {

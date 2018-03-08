@@ -27,7 +27,6 @@ import { PopoverSegmentComponent } from './popover/popover.segment';
       MatButtonModule,
       MatButtonToggleModule,
       MatIconModule,
-
   ],
   exports: [
     PopoverComponent,

@@ -52,16 +52,14 @@ const loadZipFile = async (file: File) => {
 export const loadCartFromFile = async (file: File) => {
     let cart: BaseCart;
     return (async () => {
-        try {
-            if (file.name.endsWith('.zip')) {
-                cart = await loadZipFile(file);
-           } else if (file.name.endsWith('.nes')) {
-                cart = await loadNesFile(file, file.name);
-           } else {
-               throw new Error(`invalid file type ${file.name}`);
-           }
-        } catch (e) {
-            throw e;
+        if (!file) {
+            return Promise.reject('file is undefined');
+        } else if (file.name.endsWith('.zip')) {
+            cart = await loadZipFile(file);
+        } else if (file.name.endsWith('.nes')) {
+            cart = await loadNesFile(file, file.name);
+        } else {
+            return Promise.reject(`invalid file type ${file.name}`);
         }
         cart.fileName = file.name;
         return cart;
@@ -71,6 +69,7 @@ export const loadCartFromFile = async (file: File) => {
 export const loadCartFromUrl = async (url: string) => {
     return (async () => {
         const response = await fetch(url);
-        return loadFile(blobToFile(await response.blob(), url));
+
+        return response.ok ? loadFile(blobToFile(await response.blob(), url)) : Promise.reject('invalid url');
     })();
 };

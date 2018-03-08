@@ -1,3 +1,29 @@
+export interface KeyBinding {
+    key: number;
+    value: number;
+}
+
+enum buttonorder {
+    left, right, up, down, b, a, select, start
+}
+
+export const defaultBindings: KeyBinding[] = [
+    { key: 37, value: 64 },
+    { key: 39, value: 128 },
+    { key: 38, value: 16 },
+    { key: 40, value: 32 },
+    { key: 90, value: 2 },
+    { key: 88, value: 1 },
+    { key: 65, value: 4 },
+    { key: 83, value: 8 }
+]
+
+export function keyName(keyCode: number): string {
+    let keyName = '';
+    keyName = KEYS[keyCode.toString()];
+    return keyName;
+}
+
 const KEYS = {
     '8': 'backspace',
     '9': 'tab',
@@ -100,30 +126,3 @@ const KEYS = {
     '221': ']',
     '222': '\''
 };
-
-export interface KeyBinding {
-        key: number;
-        value: number;
-}
-
-enum buttonorder {
-  left, right, up, down, b, a, select, start  
-}
-
-export const defaultBindings: KeyBinding[] = [
-    { key: 37, value: 64 },
-    { key: 39, value: 128 },
-    { key: 38, value: 16 } ,
-    { key: 40, value: 32 },
-    { key: 90, value: 2 },
-    { key: 88, value: 1 },
-    { key: 65, value: 4 },
-    { key: 83, value: 8 }
-]
-
-
-export function keyName(keyCode: number): string {
-    let keyName = '';
-    keyName = KEYS[keyCode.toString()];
-    return keyName;
-}

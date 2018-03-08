@@ -30,6 +30,7 @@
     "chichi": "git://github.com/jhartrick/ChiChiNes.git",
     "core-js": "^2.4.1",
     "crc": "^3.5.0",
+    "fs": "0.0.1-security",
     "jszip": "^3.1.5",
     "rxjs": "^5.5.6",
     "three": "^0.89.0",

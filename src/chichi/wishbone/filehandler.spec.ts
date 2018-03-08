@@ -1,73 +1,84 @@
 import * as FILES from './filehandler';
 
-// TODO: fix this dataurl to be a valid file, not just a header - create a .zip version
-const testFile = 'data:;base64,TkVTGggAEQAAAE5JIDEuM6UfyRWwIaUSKRDwFqAAhNE=';
-
-// tslint:disable-next-line:max-line-length
-const customMatchers: any = {
-  toBeAPromise: function (util, customEqualityTesters) {
-    return function (actual, expected) {
-      return {
-          pass: actual instanceof Promise,
-          message: actual instanceof Promise ? 'passed' : 'Expected a Promise'
-      };
-    };
-  }
+async function getFile(): Promise<File> {
+  const response = await fetch('base/testfiles/1.nes');
+  const blob = await response.blob();
+  return <File>Object.assign(blob, { lastModifiedDate: new Date, name: '1.nes' })
 };
 
 describe('loadCartFromUrl', () => {
-    beforeEach(function() {
-        jasmine.addMatchers(customMatchers);
-    });
 
-    it('should return a promise', () => {
-      const result = FILES.loadCartFromUrl(testFile);
-      expect(result);
-    });
+    it('should return a basecart from a valid url', (done) => {
+      const result = FILES.loadCartFromUrl('base/testfiles/1.nes');
+      result.then(function(cart) {
 
-    it('should return a basecart', () => {
-      const result = FILES.loadCartFromUrl(testFile);
-      result.then(cart => {
+        expect(cart).toBeDefined();
+        expect(cart.mapperId).toBe(0);
+        expect(cart.ROMHashFunction).toBe('654EC82D');
 
-        expect(cart).toBeTruthy();
-        // just a high order test to see if this is ac art, more explicit testing of decoding file belongs elsewhere
-        expect(cart.mapperId).toBe(1);
+        done();
+      }, function (reason){
+        fail(reason);
       });
     });
 
-    it('should throw error on noexistent file', () => {
-      const result = FILES.loadCartFromUrl('');
-      result.then().catch(reason => {
-        console.log('reason: ' + reason);
-        expect(reason).toThrowError();
+    it('should reject promise on failed load', (done) => {
+      
+      FILES.loadCartFromUrl('/fart/poop.nes').then(function(cart) {
+        fail();
+      }, function (reason) {
+        expect(reason).toMatch('invalid url');
+        done();
       });
-  });
+
+    });
 
 });
 
 describe('loadCartFromFile', () => {
-  beforeEach(function() {
-      jasmine.addMatchers(customMatchers);
-  });
-
   const file = new File(['hello i am a file'], 'testfile.txt');
 
-  it('should return a promise', () => {
-    const result = FILES.loadCartFromFile(file);
-    expect(result);
+  it('should reject promise on undefined file', (done) => {
+    const promise =  FILES.loadCartFromFile(undefined);
+
+    promise.then(function(result) {
+      // Promise is resolved
+      fail();
+    }, function(reason) {
+      // Promise is rejected
+      expect(reason).toMatch('file is undefined')
+      done(); 
+    });
   });
 
-  it('should throw error on noexistent file', () => {
-    const result = FILES.loadCartFromFile(undefined);
-
-    expect(result.then).toThrowError();
+  it('should reject promise for an invalid file', (done) => {
+    const promise =  FILES.loadCartFromFile(file);
+    
+    promise.then(function(result) {
+      // Promise is resolved
+      fail();
+    }, function(reason) {
+      // Promise is rejected
+      expect(reason).toMatch('invalid file type testfile.txt')
+      done(); 
+    });
   });
 
-  it('should throw error on invalid file', () => {
-    const result = FILES.loadCartFromFile(file);
+  it('should load a proper file and return a basecart', (done) => {
+    const rom = getFile().then((rom) => {
+      const promise =  FILES.loadCartFromFile(rom);
 
-    expect(result.then).toThrowError();
+      promise.then(function(result) {
+        // Promise is resolved
+        expect(result).toBeDefined();
+        expect(result.mapperId).toBe(0);
+        expect(result.ROMHashFunction).toBe('654EC82D');
+        done();
+      }, function(reason) {
+        // Promise is rejected
+        fail(reason);
+      });
+    });
   });
-
 
 });
