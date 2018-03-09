@@ -1,7 +1,7 @@
 import { drawFrameCanvas } from "../native/canvas.drawframe";
 import { WishboneIO, Wishbone } from "./wishbone";
 import { PixelBuffers } from "chichi";
-import { drawFrameWebGL } from "../threejs/threejs.drawframe";
+import { drawFrameWebGL } from '../threejs/threejs.drawframe';
 import * as THREE from "three";
 
 export interface VideoHandlingComponent {
