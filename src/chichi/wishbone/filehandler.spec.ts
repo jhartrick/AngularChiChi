@@ -17,13 +17,12 @@ describe('loadCartFromUrl', () => {
         expect(cart.ROMHashFunction).toBe('654EC82D');
 
         done();
-      }, function (reason){
+      }, function (reason) {
         fail(reason);
       });
     });
 
     it('should reject promise on failed load', (done) => {
-      
       FILES.loadCartFromUrl('/fart/poop.nes').then(function(cart) {
         fail();
       }, function (reason) {
@@ -46,14 +45,14 @@ describe('loadCartFromFile', () => {
       fail();
     }, function(reason) {
       // Promise is rejected
-      expect(reason).toMatch('file is undefined')
-      done(); 
+      expect(reason).toMatch('file is undefined');
+      done();
     });
   });
 
   it('should reject promise for an invalid file', (done) => {
     const promise =  FILES.loadCartFromFile(file);
-    
+
     promise.then(function(result) {
       // Promise is resolved
       fail();

@@ -9,6 +9,7 @@ import { CartInfoModule } from '../cartinfo/cartinfo.module';
 import { DialogService } from './dialog.service';
 import { CheatingModule } from '../cartinfo/cheating/cheating.module';
 import { ActivatedRoute, Routes, RouterModule } from '@angular/router';
+import { RomLauncherComponent } from './rom-launcher/rom-launcher.component';
 
 const appRoutes: Routes = [
   {
@@ -25,6 +26,7 @@ const appRoutes: Routes = [
 @NgModule({
   declarations: [
     AppComponent,
+    RomLauncherComponent,
   ],
   imports: [
     BrowserModule,
