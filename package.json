@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "up": "ng update @angular/cli @angular/core",
-    "buildhost": "ng build --prod --base-href=\"https://reallivedinosaur.github.io/ChiChiNg/\" && ./node_modules/.bin/ngh"
+    "buildhost": "ng build --prod --base-href=\"https://reallivedinosaur.github.io/ChiChiNg/\" && .\\node_modules\\.bin\\ngh"
   },
   "private": true,
   "dependencies": {
