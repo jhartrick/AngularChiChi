@@ -21,7 +21,7 @@ async function fetchCheats (crc: string) {
     const xmlDoc = parser.parseFromString(text, 'text/xml');
     const ggCodes = new Array<GameGenieCode>();
     const nodes = xmlDoc.evaluate('/database/game[@crc="' + crc + '"]/gamegenie', xmlDoc, null, XPathResult.ANY_TYPE, null);
-    let result = nodes.iterateNext();
+    let result = nodes.iterateNext() as Element;
     while (result) {
         const ggCode = {
             code: (<any>result.attributes).code.value,
@@ -29,7 +29,7 @@ async function fetchCheats (crc: string) {
             active: false
         };
         ggCodes.push(ggCode);
-        result = nodes.iterateNext();
+        result = nodes.iterateNext() as Element;
     }
 
     return ggCodes;

@@ -32,7 +32,7 @@ const loadZipFile = async (file: File) => {
     return new Promise<BaseCart>((r, x) => {
         fileReader.onload = (e) => {
             (async () => {
-                const rom: number[] = Array.from(new Uint8Array(fileReader.result));
+                const rom: number[] = Array.from(new Uint8Array(fileReader.result as ArrayBuffer));
                 // zip file
                 const zip = await JSZip.loadAsync(rom);
                 const list = zip.filter((relativePath, zipEntry) => zipEntry.name.endsWith('.nes'));

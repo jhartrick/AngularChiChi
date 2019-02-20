@@ -1,6 +1,5 @@
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Component, Inject, ChangeDetectorRef, ElementRef, AfterContentInit } from '@angular/core';
-import { setTimeout } from 'timers';
 import { BaseCart } from 'chichi';
 
 @Component({
